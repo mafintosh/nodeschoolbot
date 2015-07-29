@@ -1,0 +1,30 @@
+{
+  "name": "nodeschoolbot",
+  "version": "0.0.0",
+  "description": "WIP - nothing to see here",
+  "main": "index.js",
+  "dependencies": {
+    "minimist": "^1.1.2",
+    "receive-json": "^2.1.0",
+    "request": "^2.60.0"
+  },
+  "devDependencies": {
+    "standard": "^4.5.4"
+  },
+  "bin": {
+    "nodeschoolbot": "./bin.js"
+  },
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/nodeschoolbot.git"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/nodeschoolbot/issues"
+  },
+  "homepage": "https://github.com/mafintosh/nodeschoolbot"
+}
