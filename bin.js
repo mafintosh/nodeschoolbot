@@ -67,6 +67,8 @@ var server = http.createServer(function (req, res) {
 
     if (!body.comment.body || !/@nodeschoolbot\s/.test(body.comment.body)) return res.end()
 
+    if (cmd.name === 'barrel-roll') return comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', done)
+
     if (cmd.args.length >= 1 && cmd.name === 'create-repo') {
       authenticate(function () {
         createRepository(cmd.args[0], function (err, result) {
@@ -168,6 +170,12 @@ function parseCommand (comment) {
   if (!comment) return null
   var line = comment.match(/@nodeschoolbot\s([^\n]*)/)
   if (!line) return null
+  if (/barrel.?roll/.test(line)) {
+    return {
+      name: 'barrel-roll',
+      args: []
+    }
+  }
   var args = line[1].trim().split(/\s+/)
   return {
     name: args[0] || '',
