@@ -1,7 +1,7 @@
 {
   "name": "nodeschoolbot",
   "version": "0.0.0",
-  "description": "WIP - nothing to see here",
+  "description": "Github bot that helps maintain nodeschool",
   "main": "index.js",
   "dependencies": {
     "minimist": "^1.1.2",
