@@ -6,6 +6,8 @@ A github bot that helps out adding members / creating repos for [nodeschool](htt
 npm install -g nodeschoolbot
 ```
 
+[![build status](http://img.shields.io/travis/mafintosh/nodeschoolbot.svg?style=flat)](http://travis-ci.org/mafintosh/nodeschoolbot)
+
 ## Usage
 
 ```
