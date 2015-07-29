@@ -170,7 +170,7 @@ function parseCommand (comment) {
   if (!comment) return null
   var line = comment.match(/@nodeschoolbot\s([^\n]*)/)
   if (!line) return null
-  if (/barrel.?roll/.test(line)) {
+  if (/barrel.?roll/.test(comment)) {
     return {
       name: 'barrel-roll',
       args: []
