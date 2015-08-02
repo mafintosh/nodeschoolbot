@@ -68,11 +68,13 @@ var server = http.createServer(function (req, res) {
 
     var added = []
     var repos = []
+    var emptyOk = false
 
     authenticate(function () {
       var next = after(format)
       cmds.forEach(function (cmd) {
         if (cmd.name === 'barrel-roll') {
+          emptyOk = true
           comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', next())
           return
         }
@@ -114,6 +116,7 @@ var server = http.createServer(function (req, res) {
         msg += ' to the `chapter-organizers` team.'
       }
 
+      if (emptyOk && !msg) return done()
       comment(body, msg || help, done)
     }
 
