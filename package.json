@@ -4,6 +4,7 @@
   "description": "Github bot that helps maintain nodeschool",
   "main": "index.js",
   "dependencies": {
+    "after-all": "^2.0.2",
     "minimist": "^1.1.2",
     "receive-json": "^2.1.0",
     "request": "^2.60.0"

@@ -5,6 +5,7 @@ var request = require('request')
 var onjson = require('receive-json')
 var minimist = require('minimist')
 var crypto = require('crypto')
+var after = require('after-all')
 
 var argv = minimist(process.argv, {
   alias: {
@@ -59,39 +60,61 @@ var server = http.createServer(function (req, res) {
     if (err) return res.end()
     if ('sha1=' + hmac.digest('hex') !== req.headers['x-hub-signature']) return res.end()
 
-    var cmd = parseCommand(body.comment && body.comment.body)
-    if (!cmd) return res.end()
+    var cmds = parseCommand(body.comment && body.comment.body)
+    if (!cmds) return res.end()
 
     var from = body.sender && body.sender.login
     if (from === 'nodeschoolbot') return res.end()
 
-    if (!body.comment.body || !/@nodeschoolbot\s/.test(body.comment.body)) return res.end()
+    var added = []
+    var repos = []
 
-    if (cmd.name === 'barrel-roll') return comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', done)
+    var next = after(function (err) {
+      if (err) return done(err)
 
-    if (cmd.args.length >= 1 && cmd.name === 'create-repo') {
-      authenticate(function () {
-        createRepository(cmd.args[0], function (err, result) {
-          if (err) return done(err)
-          var msg = 'I have created a new repo called [' + cmd.args[0] + '](https://github.com/nodeschool/' + cmd.args[0] + ')'
-          comment(body, msg, done)
+      var msg = ''
+
+      if (repos.length) {
+        msg += 'I have created ' + (repos.length === 1 ? 'a' : repos.length) + ' new repo' + (repos.length === 1 ? '' : 's') + ' called '
+        repos.forEach(function (repo, i) {
+          if (i) msg += ', '
+          msg += '[' + repo + '](https://github.com/nodeschool/' + repo + ')'
         })
-      })
-      return
-    }
+      }
 
-    if (cmd.args.length >= 1 && cmd.name === 'add-user') {
-      authenticate(function () {
-        addUser(cmd.args[0], function (err) {
-          if (err) return done(err)
-          var msg = 'I have added @' + cmd.args[0] + ' to the `chapter-organizers` team.'
-          comment(body, msg, done)
+      if (added.length) {
+        if (msg) msg += 'and '
+        msg += 'I have added '
+        added.forEach(function (user, i) {
+          if (i) msg += ', '
+          msg += '@' + user
         })
-      })
-      return
-    }
+        msg += ' to the `chapter-organizers` team.'
+      }
 
-    comment(body, help, done)
+      comment(body, msg || help, done)
+    })
+
+    authenticate(function () {
+      cmds.forEach(function (cmd) {
+        if (cmd.name === 'barrel-roll') {
+          comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'create-repo') {
+          repos.push(cmd.args[0])
+          createRepository(cmd.args[0], next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'add-user') {
+          added.push(cmd.args[0])
+          addUser(cmd.args[0], next())
+          return
+        }
+      })
+    })
 
     function authenticate (cb) {
       request.get('https://api.github.com/teams/' + CHAPTER_ORGANIZERS + '/memberships/' + from, {
@@ -168,17 +191,19 @@ function handleResponse (cb) {
 
 function parseCommand (comment) {
   if (!comment) return null
-  var line = comment.match(/@nodeschoolbot\s([^\n]*)/)
+  var line = comment.match(/@nodeschoolbot\s([^\n]*)/g)
   if (!line) return null
   if (/barrel.?roll/.test(comment)) {
-    return {
+    return [{
       name: 'barrel-roll',
       args: []
+    }]
+  }
+  return line.map(function (l) {
+    var args = l.trim().split(/\s+/).slice(1)
+    return {
+      name: args[0] || '',
+      args: args.slice(1)
     }
-  }
-  var args = line[1].trim().split(/\s+/)
-  return {
-    name: args[0] || '',
-    args: args.slice(1)
-  }
+  })
 }
