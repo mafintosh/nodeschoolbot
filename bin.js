@@ -69,7 +69,29 @@ var server = http.createServer(function (req, res) {
     var added = []
     var repos = []
 
-    var next = after(function (err) {
+    authenticate(function () {
+      var next = after(format)
+      cmds.forEach(function (cmd) {
+        if (cmd.name === 'barrel-roll') {
+          comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'create-repo') {
+          repos.push(cmd.args[0])
+          createRepository(cmd.args[0], next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'add-user') {
+          added.push(cmd.args[0])
+          addUser(cmd.args[0], next())
+          return
+        }
+      })
+    })
+
+    function format (err) {
       if (err) return done(err)
 
       var msg = ''
@@ -93,28 +115,7 @@ var server = http.createServer(function (req, res) {
       }
 
       comment(body, msg || help, done)
-    })
-
-    authenticate(function () {
-      cmds.forEach(function (cmd) {
-        if (cmd.name === 'barrel-roll') {
-          comment(body, '![barrel-roll](https://i.chzbgr.com/maxW500/5816682496/h83DFAE3F/)', next())
-          return
-        }
-
-        if (cmd.args.length >= 1 && cmd.name === 'create-repo') {
-          repos.push(cmd.args[0])
-          createRepository(cmd.args[0], next())
-          return
-        }
-
-        if (cmd.args.length >= 1 && cmd.name === 'add-user') {
-          added.push(cmd.args[0])
-          addUser(cmd.args[0], next())
-          return
-        }
-      })
-    })
+    }
 
     function authenticate (cb) {
       request.get('https://api.github.com/teams/' + CHAPTER_ORGANIZERS + '/memberships/' + from, {
