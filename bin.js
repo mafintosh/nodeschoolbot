@@ -42,7 +42,8 @@ var help = '' +
   '\n' +
   '* `help` - shows this help\n' +
   '* `create-repo {name}` - creates a nodeschool repo\n' +
-  '* `add-user {username}` - adds a user to the `chapter-organizers` team and the org\n'
+  '* `add-user {username}` - adds a user to the `chapter-organizers` team and the org\n' +
+  '* `add-team-user {team} {username}\n'
 
 var server = http.createServer(function (req, res) {
   if (req.method === 'GET') {
@@ -68,6 +69,7 @@ var server = http.createServer(function (req, res) {
 
     var added = []
     var repos = []
+    var addedteam = {}
     var emptyOk = false
 
     authenticate(function () {
@@ -88,6 +90,15 @@ var server = http.createServer(function (req, res) {
         if (cmd.args.length >= 1 && cmd.name === 'add-user') {
           added.push(cmd.args[0])
           addUser(cmd.args[0], next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'add-team-user') {
+          var team = cmd.args[0]
+          var user = cmd.args[1]
+          if (!addedteam[team]) addedteam[team] = []
+          addedteam[team].push(user)
+          addTeamUser(team, user, body, next())
           return
         }
       })
@@ -114,6 +125,17 @@ var server = http.createServer(function (req, res) {
           msg += '@' + user
         })
         msg += ' to the `chapter-organizers` team.'
+      }
+
+      if (addedteam.length) {
+        for (var team in addedteam) {
+          msg += 'I have invited '
+          addedteam[team].forEach(function (user, i) {
+            if (i) msg += ', '
+            msg += '@' + user
+          })
+          msg += ' to the `' + team + '` team.\n'
+        }
       }
 
       if (emptyOk && !msg) return done()
@@ -175,6 +197,23 @@ function createRepository (name, cb) {
       auto_init: true
     }
   }, handleResponse(cb))
+}
+
+function addTeamUser (team, username, body, cb) {
+  request.get('https://api.github.com/orgs/nodeschool/teams', function (e, r, teams) {
+    if (e) return cb(e)
+    var teamId
+    for (var i = 0; i < teams.length; i++) {
+      if (teams[i].slug === team) {
+        teamId = teams[i].id
+        break
+      }
+    }
+    if (!teamId) {
+      return comment(body, 'I cannot find the team `' + team + '` ')
+    }
+    request.put('https://api.github.com/teams/' + teamId + '/memberships/' + username, handleResponse(cb))
+  })
 }
 
 function comment (body, msg, cb) {
