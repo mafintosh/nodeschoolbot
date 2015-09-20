@@ -43,7 +43,7 @@ var help = '' +
   '* `help` - shows this help\n' +
   '* `create-repo {name}` - creates a nodeschool repo\n' +
   '* `add-user {username}` - adds a user to the `chapter-organizers` team and the org\n' +
-  '* `add-team-user {team} {username}\n'
+  '* `add-team-user {team} {username}` - adds a user to the `{team}` team and the org\n'
 
 var server = http.createServer(function (req, res) {
   if (req.method === 'GET') {
