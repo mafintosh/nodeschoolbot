@@ -200,7 +200,10 @@ function createRepository (name, cb) {
 }
 
 function addTeamUser (team, username, body, cb) {
-  request.get('https://api.github.com/orgs/nodeschool/teams', function (e, r, teams) {
+  request.get({
+      url: 'https://api.github.com/orgs/nodeschool/teams',
+      json: true
+    }, function (e, r, teams) {
     if (e) return cb(e)
     var teamId
     for (var i = 0; i < teams.length; i++) {
