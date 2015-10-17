@@ -26,6 +26,7 @@ if (!argv.token) {
 }
 
 var CHAPTER_ORGANIZERS = 1660004
+var verify = argv.verify !== false
 
 request = request.defaults({
   auth: {
@@ -59,7 +60,7 @@ var server = http.createServer(function (req, res) {
 
   onjson(req, function (err, body) {
     if (err) return res.end()
-    if ('sha1=' + hmac.digest('hex') !== req.headers['x-hub-signature']) return res.end()
+    if (verify && 'sha1=' + hmac.digest('hex') !== req.headers['x-hub-signature']) return res.end()
 
     var cmds = parseCommand(body.comment && body.comment.body)
     if (!cmds) return res.end()
@@ -201,9 +202,9 @@ function createRepository (name, cb) {
 
 function addTeamUser (team, username, body, cb) {
   request.get({
-      url: 'https://api.github.com/orgs/nodeschool/teams',
-      json: true
-    }, function (e, r, teams) {
+    url: 'https://api.github.com/orgs/nodeschool/teams',
+    json: true
+  }, function (e, r, teams) {
     if (e) return cb(e)
     var teamId
     for (var i = 0; i < teams.length; i++) {
@@ -212,9 +213,7 @@ function addTeamUser (team, username, body, cb) {
         break
       }
     }
-    if (!teamId) {
-      return comment(body, 'I cannot find the team `' + team + '` ')
-    }
+    if (!teamId) return comment(body, 'I cannot find the team `' + team + '` ', cb)
     request.put('https://api.github.com/teams/' + teamId + '/memberships/' + username, handleResponse(cb))
   })
 }
