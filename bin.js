@@ -127,7 +127,7 @@ var server = http.createServer(function (req, res) {
         msg += ' to the `chapter-organizers` team.'
       }
 
-      if (addedteam.length) {
+      if (Object.keys(addedteam).length) {
         for (var team in addedteam) {
           msg += 'I have invited '
           addedteam[team].forEach(function (user, i) {
