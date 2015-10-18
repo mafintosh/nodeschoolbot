@@ -54,8 +54,9 @@ var server = http.createServer(function (req, res) {
 
   var hmac = crypto.createHmac('sha1', argv.secret)
 
+  req.setEncoding('utf-8')
   req.on('data', function (data) {
-    hmac.update(data)
+    hmac.update(data, 'utf-8') // gah weird defaults
   })
 
   onjson(req, function (err, body) {
