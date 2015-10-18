@@ -1,6 +1,6 @@
 {
   "name": "nodeschoolbot",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Github bot that helps maintain nodeschool",
   "main": "index.js",
   "dependencies": {
