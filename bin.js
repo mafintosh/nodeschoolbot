@@ -44,6 +44,7 @@ var help = '' +
   '* `help` - shows this help\n' +
   '* `create-repo {name}` - creates a nodeschool repo\n' +
   '* `add-user {username}` - adds a user to the `chapter-organizers` team and the org\n' +
+  '* `create-team {team}` - creates a new team\n' +
   '* `add-team-user {team} {username}` - add a user to a specific team\n'
 
 var server = http.createServer(function (req, res) {
@@ -71,6 +72,7 @@ var server = http.createServer(function (req, res) {
 
     var added = []
     var repos = []
+    var newTeams = []
     var addedteam = {}
     var emptyOk = false
 
@@ -92,6 +94,12 @@ var server = http.createServer(function (req, res) {
         if (cmd.args.length >= 1 && cmd.name === 'add-user') {
           added.push(cmd.args[0])
           addUser(cmd.args[0], next())
+          return
+        }
+
+        if (cmd.args.length >= 1 && cmd.name === 'create-team') {
+          newTeams.push(cmd.args[0])
+          createTeam(cmd.args[0], next())
           return
         }
 
@@ -127,6 +135,16 @@ var server = http.createServer(function (req, res) {
           msg += '@' + user
         })
         msg += ' to the `chapter-organizers` team.'
+      }
+
+      if (newTeams.length) {
+        if (msg) msg += 'and '
+        msg += 'I have created '
+        newTeams.forEach(function (team, i) {
+          if (i) msg += ', '
+          msg += '@nodeschool/' + team
+        })
+        msg += 'team' + (newTeams.length > 1 ? 's' : '')
       }
 
       if (Object.keys(addedteam).length) {
@@ -197,6 +215,18 @@ function createRepository (name, cb) {
       has_downloads: false,
       team_id: CHAPTER_ORGANIZERS,
       auto_init: true
+    }
+  }, handleResponse(cb))
+}
+
+function createTeam (name, cb) {
+  request.post('https://api.github.com/orgs/nodeschool/teams', {
+    json: {
+      name: name,
+      privacy: 'closed' // weird naming, actually 'public'
+    },
+    headers: {
+      'Accept': 'application/vnd.github.ironman-preview+json'
     }
   }, handleResponse(cb))
 }
