@@ -20,7 +20,7 @@ Run a command by mentioning @nodeschoolbot in an issue comment, e.g. `@nodeschoo
 * `help` - shows this help
 * `create-repo {name}` - creates a nodeschool repo
 * `add-user {username}` - adds a user to the `chapter-organizers` team and the org
-* `add-team-user` {team} {username}
+* `add-team-user {team} {username}` - add a user to a specific team
 
 ## Run one yourself
 
