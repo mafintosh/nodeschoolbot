@@ -234,7 +234,10 @@ function createTeam (name, cb) {
 function addTeamUser (team, username, body, cb) {
   request.get({
     url: 'https://api.github.com/orgs/nodeschool/teams',
-    json: true
+    json: true,
+    qs: {
+      per_page: Number.MAX_SAFE_INTEGER // otherwise GitHub API will default to 30 results per page
+    }
   }, function (e, r, teams) {
     if (e) return cb(e)
     var teamId
