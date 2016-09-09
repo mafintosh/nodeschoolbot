@@ -91,23 +91,26 @@ var server = http.createServer(function (req, res) {
           return
         }
 
+        var user
+        var team
+
         if (cmd.args.length >= 1 && cmd.name === 'add-user') {
-          var user = stripAtSign(cmd.args[0])
+          user = stripAtSign(cmd.args[0])
           added.push(user)
           addUser(user, next())
           return
         }
 
         if (cmd.args.length >= 1 && cmd.name === 'create-team') {
-          var team = stripAtSign(cmd.args[0])
+          team = stripAtSign(cmd.args[0])
           newTeams.push(team)
           createTeam(team, next())
           return
         }
 
         if (cmd.args.length >= 1 && cmd.name === 'add-team-user') {
-          var team = stripAtSign(cmd.args[0])
-          var user = stripAtSign(cmd.args[1])
+          team = stripAtSign(cmd.args[0])
+          user = stripAtSign(cmd.args[1])
 
           if (!addedteam[team]) addedteam[team] = []
           addedteam[team].push(user)
