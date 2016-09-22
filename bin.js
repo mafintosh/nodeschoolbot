@@ -47,6 +47,8 @@ var help = '' +
   '* `create-team {team}` - creates a new team\n' +
   '* `add-team-user {team} {username}` - add a user to a specific team\n'
 
+var version = require('./package.json').version
+
 var server = http.createServer(function (req, res) {
   if (req.method === 'GET') {
     res.end('hello, i am the nodeschoolbot\n')
@@ -115,6 +117,11 @@ var server = http.createServer(function (req, res) {
           if (!addedteam[team]) addedteam[team] = []
           addedteam[team].push(user)
           addTeamUser(team, user, body, next())
+          return
+        }
+
+        if (cmd.name === 'version') {
+          comment(body, version, next())
           return
         }
       })
