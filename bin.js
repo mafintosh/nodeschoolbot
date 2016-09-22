@@ -91,21 +91,27 @@ var server = http.createServer(function (req, res) {
           return
         }
 
+        var user
+        var team
+
         if (cmd.args.length >= 1 && cmd.name === 'add-user') {
-          added.push(cmd.args[0])
-          addUser(cmd.args[0], next())
+          user = stripAtSign(cmd.args[0])
+          added.push(user)
+          addUser(user, next())
           return
         }
 
         if (cmd.args.length >= 1 && cmd.name === 'create-team') {
-          newTeams.push(cmd.args[0])
-          createTeam(cmd.args[0], next())
+          team = stripAtSign(cmd.args[0])
+          newTeams.push(team)
+          createTeam(team, next())
           return
         }
 
         if (cmd.args.length >= 1 && cmd.name === 'add-team-user') {
-          var team = cmd.args[0]
-          var user = cmd.args[1]
+          team = stripAtSign(cmd.args[0])
+          user = stripAtSign(cmd.args[1])
+
           if (!addedteam[team]) addedteam[team] = []
           addedteam[team].push(user)
           addTeamUser(team, user, body, next())
@@ -266,6 +272,10 @@ function handleResponse (cb) {
     if (!/2\d\d/.test(res.statusCode)) return cb(new Error('Bad status: ' + res.statusCode))
     cb()
   }
+}
+
+function stripAtSign (str) {
+  return str[0] === '@' ? str.slice(1) : str
 }
 
 function parseCommand (comment) {
